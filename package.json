@@ -1,0 +1,23 @@
+{
+  "name": "mock-api",
+  "version": "1.0.0",
+  "description": "To use mock api for centilytics frontend ",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "import-data": "node data/dataSeeder.js",
+    "destroy-data": "node data/dataSeeder.js -d"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "mongoose": "^6.5.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19"
+  }
+}
