@@ -2,7 +2,7 @@ export class ApiInfo {
   constructor(
     apiRouteSuffix,
     requestType,
-    authorization,
+    authorization = "BEARER_TOKEN",
     host = "http://localhost:3000"
   ) {
     this.apiRouteSuffix = apiRouteSuffix;

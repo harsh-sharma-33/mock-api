@@ -112,6 +112,7 @@ export class WidgetModel {
       response: widgetResponse,
     });
     this.addListingApi(widgetResponse);
+    this.addAdditionalApis(widgetResponse);
     return await widgetToBeAdded.save();
 
     // res.status(200).json({ viewList, addedLoginApi, addedSideNavApi });
@@ -135,6 +136,32 @@ export class WidgetModel {
       }
     );
   }
+
+  static async addAdditionalApis(widgetInfo) {
+    const keys = Object.keys(widgetInfo["additionalApisForWidget"]);
+    if (!keys.length) return;
+
+    for (let i = 0; i < keys.length; i++) {
+      const apiResponse =
+        widgetInfo["additionalApisForWidget"][keys[i]]["response"];
+      const apiResponseType =
+        widgetInfo["additionalApisForWidget"][keys[i]]["type"];
+      const apiInfo = new ApiInfo(
+        `/additional-api/response/${widgetInfo["widgetId"]}`,
+        apiResponseType
+      );
+      widgetInfo["additionalApisForWidget"][keys[i]] = apiInfo;
+      this.addNewApi(
+        apiInfo.apiRouteSuffix,
+        apiInfo.requestType,
+        apiResponse,
+        (result) => {
+          console.log(result);
+        }
+      );
+    }
+  }
+
   static async addNewApi(path, requestType, response, cb, errCb) {
     ApiResponse.create({
       path,
