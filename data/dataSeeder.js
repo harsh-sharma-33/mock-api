@@ -1,5 +1,5 @@
 import connectDB from "../config/db.js";
-import ApiResponse from "../models/ApiResponseModel.js";
+import ApiResponse from "../Schemas/Schemas.js";
 import { apiData } from "./data.js";
 
 connectDB();
@@ -9,7 +9,6 @@ const importData = () => {
   });
   ApiResponse.insertMany(apiData)
     .then((response) => {
-      console.log(response);
       console.log("Data imported!");
       process.exit();
     })

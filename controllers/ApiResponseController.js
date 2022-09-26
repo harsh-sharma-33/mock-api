@@ -1,74 +1,89 @@
-import ApiResponse from "../Schemas/Schemas.js";
 import colors from "colors";
 import { WidgetModel } from "../models/WidgetModel.js";
+
 const handleApiResponseRequest = (req, res) => {
+  // Consoles ------------
   console.log("HANDLE API RESPONSE".bgRed.bold);
   console.log(colors.bold.yellow.inverse(req.method));
+  // Consoles ...........
+
   const fullUrl = req.originalUrl;
+
+  // Consoles --------------
   console.log(colors.bgGreen.bold(fullUrl));
-  console.log(colors.bgBlue.bold(fullUrl));
-  ApiResponse.findOne({ path: fullUrl, requestType: req.method })
-    .then((response) => {
+  // -----------------------
+  WidgetModel.findApi(
+    { path: fullUrl, requestType: req.method },
+    (response) => {
       if (response && response["response"]) {
         res.json(response.response);
       } else {
         res.status(404).send("Not found");
         console.log(colors.bgBlack.white(response));
       }
-    })
-    .catch((error) => {
-      console.error(error.message);
-      res.status(404);
-      res.json({ message: error.message });
-    });
+    },
+    (err) => {
+      console.error(err.message);
+      res.json({ message: err.message });
+    }
+  );
 };
 
 const saveApiInputs = async (req, res) => {
   console.log("SAVE API INPUTS");
-  try {
-    const {
-      path,
-      requestType,
-      response,
-      viewName,
-      sideNavItem,
-      widgetId,
-      widgetResponse,
-    } = req.body;
-    if (viewName && sideNavItem) {
-      const viewAlreadyExist = await ApiResponse.findOne({
+  const {
+    path,
+    requestType,
+    response,
+    viewName,
+    sideNavItem,
+    widgetName,
+    widgetResponse,
+  } = req.body;
+  if (viewName && sideNavItem) {
+    WidgetModel.findApi(
+      {
         "response.name": viewName,
-      });
-      if (viewAlreadyExist) {
-        res.json({ message: "view Already exist" });
-      } else {
-        WidgetModel.addView(
-          req,
-          res,
-          viewName,
-          sideNavItem,
-          widgetId,
-          widgetResponse
-        );
+      },
+      (result) => {
+        if (result) {
+          res.json({ message: "View Already exist" });
+        } else {
+          WidgetModel.addView(
+            viewName,
+            sideNavItem,
+            widgetName,
+            widgetResponse,
+            (result) => {
+              res.send(result);
+            },
+            (err) => {
+              res.json({ message: err.message });
+            }
+          );
+        }
       }
-    } else {
-      const alreadyExist = await ApiResponse.findOne({ path });
-      if (alreadyExist) {
-        res.json({ message: "already there" });
+    );
+  } else {
+    WidgetModel.findApi({ path, requestType }, (result) => {
+      if (result) {
+        res.json({ message: "Api Already Exist" });
       } else {
-        const api = await ApiResponse.create({
+        WidgetModel.addNewApi(
           path,
           requestType,
           response,
-        });
-        if (api) {
-          res.json(api);
-        }
+          (result) => {
+            if (result) {
+              res.json({ response: result });
+            }
+          },
+          (err) => {
+            res.json({ message: err.message });
+          }
+        );
       }
-    }
-  } catch (error) {
-    console.error(error);
-    res.json({ message: error.message });
+    });
   }
 };
 

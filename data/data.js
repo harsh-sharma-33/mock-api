@@ -1,4 +1,4 @@
-import { requestTypes } from "../models/ApiResponseModel.js";
+import { requestTypes } from "../Schemas/Schemas.js";
 
 export const apiData = [
   {
